@@ -1,0 +1,134 @@
+Codec Timer Pro — Version History
+=====================================
+
+v1.0.0  2026-04-02  Initial concept — panel created at runtime, TextLine countdown, Start/Stop toggle
+
+v1.1.0  2026-04-02  Flash mode in final 20 seconds — TextLine blinks on/off each tick, then stays on
+                    with expiry message until manually cleared
+
+v1.2.0  2026-04-02  Production build — replaced TextInput with Spinner controls (minutes + seconds),
+                    default duration 10 minutes, 30-second auto-clear on expiry message,
+                    version history moved out of macro into this file
+
+v1.3.0  2026-04-02  Added Hide Message button to panel to manually clear the on-screen overlay at any
+                    time; TextLine positioned at centre-top of screen (X=5, Y=1)
+
+v1.4.0  2026-04-02  Replaced Hide button with OSD/Controller GroupButton target selector; TextLine
+                    position corrected to X=5000 Y=200 (centre-top); switching to Controller clears
+                    OSD immediately; switching back to OSD mid-countdown restores display instantly
+
+v1.5.0  2026-04-02  Fixed GroupButton init error (removed premature SetValue call — widget not yet
+                    registered at that point); added Stop & Clear button to Control row (stops
+                    countdown and force-clears OSD in one tap); clarified TextLine is OSD-only
+
+v1.6.0  2026-04-02  Added DEBUG flag (true/false) to toggle console logging and reduce codec load;
+                    TextLine Y changed from 200 to 500; GroupButton now defaults to OSD and syncs
+                    via Panel.Opened event (reliable fix for valuespace error); Controller mode
+                    removes OSD textbox but keeps status widget updating on the panel
+
+v1.7.0  2026-04-02  GroupButton forced back to OSD on startup (1500ms timeout after panel save),
+                    on countdown finish, and on Stop & Clear — device was persisting last selection
+                    across restarts; Panel.Opened sync retained as belt-and-braces
+
+v2.0.0  2026-04-02  Rebuilt on xCommand UserInterface Message Alert Display — alert appears on both
+                    main screen and touch panel simultaneously; added alertTitle and alertExpiredTitle
+                    config; removed TextLine X/Y positioning (Alert is always centred); Controller
+                    mode suppresses the Alert entirely, status widget continues on panel only
+
+v2.1.0  2026-04-02  Auto-detects device type at runtime via xStatus SystemUnit ProductPlatform;
+                    Desk* devices use Alert.Display / Alert.Clear; Codec Pro devices use
+                    TextLine.Display / TextLine.Clear; unknown platforms fall back to Alert;
+                    status widget shows active mode on startup e.g. "Ready (v2.1.0 / alert)"
+
+v2.2.0  2026-04-02  Added Board* (Alert) and ROOMKITEQ* (TextLine) to device detection table
+
+v2.3.0  2026-04-02  DEBUG default changed to false; panelLocation default changed to ControlPanel;
+                    added Room* (TextLine) to device detection table
+
+v2.4.0  2026-04-02  Corrected Room Kit EQ platform string from 'ROOMKITEQ' to 'Room Kit EQ' in
+                    detectDevice(); accompanies the published user guide
+
+v3.0.0  2026-04-02  Major feature release — three timer modes via Timer Option GroupButton
+                    (Countdown / Timer / To Time); Display Target row moved above duration row;
+                    Countdown Duration row renamed; Timer mode counts up with 5-min auto-reset on
+                    inactivity; To Time mode counts down to a user-entered HH:MM wall clock time;
+                    Set Time to Count To TextInput row added; syncAllGroupButtons() syncs both
+                    GroupButtons on startup and panel open
+
+v2.4.0  2026-04-02  Corrected Product Type Support for ROOM KIT EQ
+
+v3.1.0  2026-04-02  Removed deviceMode from status ready message; TextLine mode now prepends
+                    mode label to OSD text (e.g. "Countdown 09:45") since TextLine has no Title
+                    field; replaced TextInput widget in Set Time to Count To row with a Text
+                    display widget + Set Time button; Set Time button opens a TextInput popup
+                    (xCommand UserInterface Message TextInput Display) for HH:MM entry;
+                    response validated and stored, panel text widget updated to show set time
+
+v3.2.0  2026-04-02  Panel renamed to 'Codec Timer Pro'; Timer Option row header renamed to
+                    Timer Options; dynamic row visibility — panel XML is rebuilt and re-saved
+                    each time the Timer Options GroupButton changes: Countdown shows Duration
+                    row only, Timer shows neither, To Time shows Set Time row only; added
+                    restoreWidgetValues() to re-sync all volatile widget state after rebuild
+                    and on Panel.Opened
+
+v3.3.0  2026-04-02  To Time TextInput changed to numeric-only 4-digit entry (no colon) —
+                    user enters HHMM e.g. 1430 for 14:30; InputType set to Numeric; current
+                    time pre-filled as default via InputText; parseClockTime() updated to
+                    parse 4-digit strings; stored/displayed value formatted back to HH:MM
+
+v3.5.0  2026-04-02  TextLine prefix now uses the same title string as Alert mode — removed
+                    textLinePrefix() function; showMessage() uses the title parameter directly
+                    for both modes so Countdown/Timer/Time Remaining/Time Up! are consistent
+
+v3.4.0  2026-04-02  Timer mode capped at 75 minutes — Stop & Clear fires automatically when
+                    elapsedSecs reaches timerMaxMins * 60; info text row added to panel in
+                    Timer mode (above Control row) explaining the 75-min cap and call reset;
+                    call detection added via xapi.Event.CallSuccessful (outbound) and
+                    xapi.Event.IncomingCallReceived (inbound) — both trigger resetAll() if
+                    a timer is running when a call is placed or received
+
+v3.6.0  2026-04-17  Added new row above Status row (no header) with three widgets: On Screen
+                    Location button (size=2), Audible Alarm text label (size=1), and Audible
+                    Alarm toggle (size=1); widget IDs registered in CONFIG as
+                    widgetOnScreenLocation, widgetAudibleAlarmLabel, widgetAudibleAlarm
+
+v3.6.1  2026-04-17  Fixed Audible Alarm widget type from Toggle to ToggleButton (correct
+                    RoomOS UI Extensions type)
+
+v3.6.2  2026-04-17  Changed countdown_audible_alarm_label font size from normal to small
+
+v3.6.3  2026-04-17  Added audible alarm feature — when Audible Alarm toggle is On, finishTimer()
+                    calls activateAlarm() which plays the Connection ringtone (looped) and shows
+                    an alert for alarmDuration seconds, then auto-stops via deactivateAlarm();
+                    resetAll() also calls deactivateAlarm() to stop alarm on manual reset;
+                    toggle state tracked in audibleAlarmEnabled via WidgetAction 'changed' event;
+                    alarm config (ringTone, duration, title, text) added to CONFIG
+
+v3.6.4  2026-04-17  Seconds spinner now steps in increments of 5 (0–55) instead of 1;
+                    alert Dismiss button now triggers deactivateAlarm() via
+                    UserInterface.Message.Alert.Cleared event to stop ringtone immediately
+
+v3.6.5  2026-04-17  Fixed alarm dismiss — Alert.Display has no dismiss event in RoomOS macros;
+                    switched alarm popup to Prompt.Display with a Dismiss option button;
+                    deactivateAlarm() now fires via Prompt.Response filtered by alarmFeedbackId;
+                    alarmFeedbackId added to CONFIG
+
+v3.6.6  2026-04-17  Replaced TextLine.Display/Clear with Video.Graphics.Text.Display and
+                    Video.Graphics.Clear (Target: LocalOutput) for Codec Pro / Room devices;
+                    removed unused textLineDuration, textLineX, textLineY config entries
+
+v3.6.7  2026-04-17  Audible Alarm toggle now initialised to off on macro start via
+                    restoreWidgetValues(); reflects audibleAlarmEnabled state (default false)
+
+v3.6.8  2026-04-17  Removed automatic device detection (detectDevice removed); deviceMode now
+                    defaults to 'textline' (Graphics Overlay); On Screen Location button opens
+                    a Prompt letting user choose between Graphics Overlay or Alert Message at
+                    runtime; choice stored in deviceMode and confirmed in status widget
+
+v3.6.9  2026-04-17  Expiry message auto-clears after 10 seconds (was 30); clearAllMessages()
+                    added to clear both Alert and Video.Graphics on expiry regardless of mode;
+                    button relabelled 'Alert Type', widget renamed to countdown_onscreen_type;
+                    prompt title changed to 'On Screen Alert Type', options renamed to
+                    'Bottom of Screen' and 'Top Right Alert'
+
+v3.6.10 2026-04-17  Button label changed from 'Alert Type' to 'OSD Type'
